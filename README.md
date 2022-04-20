@@ -1,6 +1,6 @@
-# nethserver-zabbix
+# nethserver-zabbix-docker
 
-nethserver-zabbix integrates the newest Zabbix monitoring system from Zabbix repo to NethServer
+nethserver-zabbix-docker integrates the newest Zabbix monitoring system using Docker
 
 ## Documentation
 
