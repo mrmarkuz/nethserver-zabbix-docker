@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+use strict;
+use esmith::Build::CreateLinks qw(:all);
+
+#--------------------------------------------------
+## example of what is a createlinks
+##--------------------------------------------------
+
+
+#mandatory to create db after installation
+my $event = 'nethserver-zabbix-update';
+event_actions ($event,
+     'initialize-default-databases' => '00',
+     'nethserver-zabbix-docker-conf' => '10',
+     'nethserver-zabbix-docker-conf-db' => '90'
+);
+
+templates2events("/etc/httpd/conf.d/zabbix.conf", $event);
+templates2events("/etc/httpd/conf.d/default-virtualhost.inc", $event);
+templates2events("/etc/nethserver/eorepo.conf", $event);
+
+event_services($event,
+               'httpd' => 'reload'
+);
+
+
+#--------------------------------------------------
+# actions for pre-backup-data event
+#--------------------------------------------------
+
+$event = 'pre-backup-data';
+
+event_actions($event, 'nethserver-zabbix-backup' => 50);
+
+#--------------------------------------------------
+# actions for post-restore-data event
+#--------------------------------------------------
+
+$event = 'post-restore-data';
+
+event_actions($event, 'nethserver-zabbix-restore' => 50);
+event_services($event, 'zabbix-server' => 'restart');
