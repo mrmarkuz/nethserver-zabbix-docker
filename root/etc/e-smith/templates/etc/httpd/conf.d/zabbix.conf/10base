@@ -1,64 +1,34 @@
 #
-# Zabbix monitoring system php web frontend
+# Zabbix monitoring system reverse proxy
 #
 
-Alias /zabbix /usr/share/zabbix
+<VirtualHost *:80>
+    IncludeOptional conf.d/default-virtualhost.inc
+</VirtualHost>
 
-<Directory "/usr/share/zabbix">
-    Options FollowSymLinks
-    AllowOverride None
+<VirtualHost *:443>
+    ServerName zabbix.domain.local
+    SSLEngine On
+    ProxyPassMatch ^/.well-known/acme-challenge/ !
+    ProxyPass  / http://localhost:8080/ max=3 retry=30
+    ProxyPassReverse / http://localhost:8080/
+    ProxyPreserveHost On
+    <Location "/">
+      <RequireAll>
+        Require all granted
+      </RequireAll>
+    </Location>
+</VirtualHost>
 
-    <FilesMatch \.php$>
-      #SetHandler "proxy:fcgi://127.0.0.1:9003"
-      # Use socket for php
-      SetHandler "proxy:unix:/var/run/rh-php73-php-fpm/nethserver-zabbix-php73.sock|fcgi://localhost/"
-    </FilesMatch>
-
-    <IfModule mod_authz_core.c>
-      # Apache 2.4
-      Require all granted
-    </IfModule>
-   
-    <IfModule !mod_authz_core.c>
-      # Apache 2.2
-      Order allow,deny
-      Allow from all
-    </IfModule>
-
-    <IfModule mod_php5.c>
-        php_value max_execution_time 300
-        #php_value memory_limit 128M
-        php_value post_max_size 16M
-        #php_value upload_max_filesize 2M
-        php_value max_input_time 300
-        #php_value always_populate_raw_post_data -1
-        #php_value date.timezone Europe/Vienna
-    </IfModule>
-
-</Directory>
-
-<Directory ~ "^/usr/share/zabbix/(conf|api|include)/">
-    <IfModule mod_authz_core.c>
-      # Apache 2.4
-      Require all denied
-    </IfModule>
-
-    <IfModule !mod_authz_core.c>
-      # Apache 2.2
-      Order deny,allow
-      Deny from all
-    </IfModule>
-
-    <files *.php>
-      <IfModule mod_authz_core.c>
-        # Apache 2.4
-        Require all denied
-      </IfModule>
-
-      <IfModule !mod_authz_core.c>
-        Order deny,allow
-        Deny from all
-      </IfModule>
-
-    </files>
-</Directory>
+<VirtualHost *:80>
+    ServerName zabbix.domain.local
+    ProxyPassMatch ^/.well-known/acme-challenge/ !
+    ProxyPass  / http://localhost:8080/ max=3 retry=30
+    ProxyPassReverse / http://localhost:8080/
+    ProxyPreserveHost On
+    <Location "/">
+      <RequireAll>
+        Require all granted
+      </RequireAll>
+    </Location>
+</VirtualHost>
