@@ -1,0 +1,7 @@
+#
+# nsapi_nethserver_zabbix_docker
+#
+Cmnd_Alias NSAPI_NETHSERVER_ZABBIX_DOCKER = \
+    /usr/libexec/nethserver/api/nethserver-zabbix-docker/read
+
+Defaults!NSAPI_NETHSERVER_ZABBIX_DOCKER !requiretty

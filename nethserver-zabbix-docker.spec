@@ -52,11 +52,7 @@ tar -xzf %SOURCE2 --strip-components=1 -C %{buildroot}/opt/zabbix-docker/
 mv %SOURCE3 %{buildroot}/opt/zabbix-docker/yq
 
 %{genfilelist} $RPM_BUILD_ROOT \
-  --file /etc/sudoers.d/50_nsapi_nethserver_zabbix 'attr(0440,root,root)' \
-  --file /usr/libexec/nethserver/api/%{name}/read 'attr(775,root,root)' \
-  --dir /var/lib/nethserver/zabbix-docker/backup 'attr(755,postgres,postgres)' \
 > %{name}-%{version}-%{release}-filelist
-exit 0
 
 %post
 %postun
