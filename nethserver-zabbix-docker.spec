@@ -15,7 +15,7 @@ Source3: https://github.com/mikefarah/yq/releases/download/v4.25.1/yq_linux_amd6
 Requires: nethserver-docker
 Conflicts: nethserver-zabbix
 BuildRequires: nethserver-devtools
-BuildArch: noarch
+BuildArch: x86_64
 
 %description
 NethServer Zabbix configuration
@@ -48,6 +48,7 @@ mkdir -p %{buildroot}/opt/zabbix-docker
 mv %SOURCE1 %{buildroot}/opt/zabbix-docker/docker-compose
 
 tar -xzf %SOURCE2 --strip-components=1 -C %{buildroot}/opt/zabbix-docker/
+rm %SOURCE2
 
 mv %SOURCE3 %{buildroot}/opt/zabbix-docker/yq
 
