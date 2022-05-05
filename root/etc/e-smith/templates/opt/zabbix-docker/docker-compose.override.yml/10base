@@ -1,0 +1,17 @@
+version: '3.5'
+services:
+ zabbix-proxy-sqlite3:
+  profiles:
+   - full
+ zabbix-proxy-mysql:
+  profiles:
+   - full
+ zabbix-web-apache-pgsql:
+  profiles:
+   - full
+ mysql-server:
+  profiles:
+   - full
+ db_data_mysql:
+  profiles:
+   - full

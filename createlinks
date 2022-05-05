@@ -3,12 +3,6 @@
 use strict;
 use esmith::Build::CreateLinks qw(:all);
 
-#--------------------------------------------------
-## example of what is a createlinks
-##--------------------------------------------------
-
-
-#mandatory to create db after installation
 my $event = 'nethserver-zabbix-docker-update';
 event_actions ($event,
      'initialize-default-databases' => '00',
@@ -16,11 +10,14 @@ event_actions ($event,
 );
 
 templates2events("/etc/httpd/conf.d/zabbix.conf", $event);
+event_templates($event, qw(
+  /etc/httpd/conf.d/zabbix.conf
+  /opt/zabbix-docker/docker-compose.override.yml
+));
 
 event_services($event,
                'httpd' => 'reload'
 );
-
 
 #--------------------------------------------------
 # actions for pre-backup-data event

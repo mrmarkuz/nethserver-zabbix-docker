@@ -7,7 +7,7 @@
 </VirtualHost>
 
 <VirtualHost *:443>
-    ServerName zabbix.domain.local
+    ServerName { $zabbix{VirtualHost} || "zabbix.".$DomainName }
     SSLEngine On
     ProxyPassMatch ^/.well-known/acme-challenge/ !
     ProxyPass  / http://localhost:8080/ max=3 retry=30
@@ -21,7 +21,7 @@
 </VirtualHost>
 
 <VirtualHost *:80>
-    ServerName zabbix.domain.local
+    ServerName { $zabbix{VirtualHost} || "zabbix.".$DomainName }
     ProxyPassMatch ^/.well-known/acme-challenge/ !
     ProxyPass  / http://localhost:8080/ max=3 retry=30
     ProxyPassReverse / http://localhost:8080/
