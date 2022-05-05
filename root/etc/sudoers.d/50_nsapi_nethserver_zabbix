@@ -1,9 +1,7 @@
 #
-# nsapi_nethserver_zabbix
+# nsapi_nethserver_zabbix_docker
 #
-Cmnd_Alias NSAPI_NETHSERVER_ZABBIX = \
-    /usr/libexec/nethserver/api/nethserver-zabbix/read
+Cmnd_Alias NSAPI_NETHSERVER_ZABBIX_DOCKER = \
+    /usr/libexec/nethserver/api/nethserver-zabbix-docker/read
 
-zabbix ALL= NOPASSWD: /usr/bin/nmap
-
-Defaults!NSAPI_NETHSERVER_ZABBIX !requiretty
+Defaults!NSAPI_NETHSERVER_ZABBIX_DOCKER !requiretty

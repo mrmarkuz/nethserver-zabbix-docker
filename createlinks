@@ -12,13 +12,10 @@ use esmith::Build::CreateLinks qw(:all);
 my $event = 'nethserver-zabbix-update';
 event_actions ($event,
      'initialize-default-databases' => '00',
-     'nethserver-zabbix-docker-conf' => '10',
-     'nethserver-zabbix-docker-conf-db' => '90'
+     'nethserver-zabbix-docker-conf' => '10'
 );
 
 templates2events("/etc/httpd/conf.d/zabbix.conf", $event);
-templates2events("/etc/httpd/conf.d/default-virtualhost.inc", $event);
-templates2events("/etc/nethserver/eorepo.conf", $event);
 
 event_services($event,
                'httpd' => 'reload'
@@ -31,7 +28,7 @@ event_services($event,
 
 $event = 'pre-backup-data';
 
-event_actions($event, 'nethserver-zabbix-backup' => 50);
+event_actions($event, 'nethserver-zabbix-docker-backup' => 50);
 
 #--------------------------------------------------
 # actions for post-restore-data event
@@ -39,5 +36,4 @@ event_actions($event, 'nethserver-zabbix-backup' => 50);
 
 $event = 'post-restore-data';
 
-event_actions($event, 'nethserver-zabbix-restore' => 50);
-event_services($event, 'zabbix-server' => 'restart');
+event_actions($event, 'nethserver-zabbix-docker-restore' => 50);

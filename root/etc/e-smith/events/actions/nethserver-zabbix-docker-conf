@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+cd /opt/zabbix-docker
+\cp docker-compose_v3_alpine_pgsql_latest.yaml docker-compose.yml
+yq -i 'del(.services.zabbix-web-nginx-pgsql.ports)' docker-compose.yml
+yq -i '.services.zabbix-web-nginx-pgsql.ports += ["8080:8080"]' docker-compose.yml
+docker-compose up -d
+docker network connect aqua zabbix-docker-zabbix-server-1
+docker network connect aqua zabbix-docker-zabbix-web-nginx-pgsql-1
+

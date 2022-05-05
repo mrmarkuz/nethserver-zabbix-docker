@@ -1,6 +1,6 @@
 {
   "id": "nethserver-zabbix-docker",
-  "name": "Zabbix",
+  "name": "Zabbix Docker",
   "summary": "Nethserver integration of Zabbix monitoring",
   "description": "Provides real-time monitoring",
   "url": "",
