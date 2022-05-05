@@ -9,7 +9,7 @@ use esmith::Build::CreateLinks qw(:all);
 
 
 #mandatory to create db after installation
-my $event = 'nethserver-zabbix-update';
+my $event = 'nethserver-zabbix-docker-update';
 event_actions ($event,
      'initialize-default-databases' => '00',
      'nethserver-zabbix-docker-conf' => '10'
