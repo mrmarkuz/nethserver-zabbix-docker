@@ -10,8 +10,8 @@
     ServerName { $zabbix{VirtualHost} || "zabbix.".$DomainName }
     SSLEngine On
     ProxyPassMatch ^/.well-known/acme-challenge/ !
-    ProxyPass  / http://localhost:8080/ max=3 retry=30
-    ProxyPassReverse / http://localhost:8080/
+    ProxyPass  / http://localhost:{$zabbix{'TCPPort'}}/ max=3 retry=30
+    ProxyPassReverse / http://localhost:{$zabbix{'TCPPort'}}/
     ProxyPreserveHost On
     <Location "/">
       <RequireAll>
@@ -23,8 +23,8 @@
 <VirtualHost *:80>
     ServerName { $zabbix{VirtualHost} || "zabbix.".$DomainName }
     ProxyPassMatch ^/.well-known/acme-challenge/ !
-    ProxyPass  / http://localhost:8080/ max=3 retry=30
-    ProxyPassReverse / http://localhost:8080/
+    ProxyPass  / http://localhost:{$zabbix{'TCPPort'}}/ max=3 retry=30
+    ProxyPassReverse / http://localhost:{$zabbix{'TCPPort'}}/
     ProxyPreserveHost On
     <Location "/">
       <RequireAll>
