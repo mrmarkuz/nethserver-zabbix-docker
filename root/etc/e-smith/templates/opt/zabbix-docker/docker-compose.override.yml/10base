@@ -1,5 +1,8 @@
 version: '3.5'
 services:
+ zabbix-web-nginx-pgsql:
+  ports:
+   - "{$zabbix{'TCPPort'}}:8080"
  zabbix-proxy-sqlite3:
   profiles:
    - full
