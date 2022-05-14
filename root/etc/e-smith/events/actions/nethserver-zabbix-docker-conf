@@ -1,5 +1,53 @@
 #!/usr/bin/bash
 
+# db migration
+
+docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix -lqt >/dev/null
+if [[ $? -ne 0 ]]; then
+        echo "[ERROR] zabbix-docker-postgresql is not working, exiting"
+        exit 1
+fi
+su - postgres -c "psql -lqt | cut -d \| -f 1 | grep -q -w zabbix"
+if [[ $? -eq 0 ]]; then
+    echo "[NOTICE] Migrating data from postgresql to zabbix-docker-postgresql"
+    # su - postgres -c "export LD_LIBRARY_PATH=/opt/rh/rh-postgresql94/root/usr/lib64:/opt/rh/rh-postgresql12/root/usr/lib64:$LD_LIBRARY_PATH && scl enable rh-postgresql12 -- pg_upgrade -b /opt/rh/rh-postgresql94/root/usr/bin -B /opt/rh/rh-postgresql12/root/usr/bin -d /var/opt/rh/rh-postgresql94/lib/pgsql/data -D /var/opt/rh/rh-postgresql12/lib/pgsql/data"
+
+    if [ -f /var/lib/nethserver/zabbix-docker/backup/zabbix.sql ]; then
+        docker stop $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
+        tmp_sql=`mktemp`
+        chmod a+r $tmp_sql
+        cat << EOF > $tmp_sql
+UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'zabbix';
+SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'zabbix';
+DROP DATABASE zabbix;
+CREATE database zabbix;
+CREATE USER zabbix WITH PASSWORD 'zabbix'; GRANT ALL PRIVILEGES ON DATABASE zabbix to zabbix;
+UPDATE pg_database SET datallowconn = 'true' WHERE datname = 'zabbix';
+EOF
+        docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d postgres < $tmp_sql >/dev/null
+        docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix < /var/lib/nethserver/zabbix-docker/backup/zabbix.sql >/dev/null
+        rm -f $tmp_sql
+        docker start $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
+    fi
+    if [[ $? -ne 0 ]]; then
+        echo "[ERROR] An error occured during postgresql migration"
+        exit 1
+    fi
+    echo "[NOTICE] Migration completed successfully"
+
+    echo "[NOTICE] Removing old zabbix database"
+        su - postgres -c "psql -q -A -c 'DROP DATABASE zabbix;'"
+        if [[ $? -ne 0 ]]; then
+            echo "[ERROR] Error while dropping old zabbix database"
+        fi
+    fi
+    systemctl start rh-postgresql12-postgresql
+else
+    echo "[NOTICE] No old zabbix db found so no migration needed"
+fi
+
+# Docker config
+
 cd /opt/zabbix-docker
 \cp docker-compose_v3_alpine_pgsql_latest.yaml docker-compose.yml
 ./yq -i 'del(.services.zabbix-web-nginx-pgsql.ports)' docker-compose.yml

@@ -1,18 +1,22 @@
 #!/bin/bash
 
-if [ -f /var/lib/nethserver/zabbix/backup/zabbix.sql ]; then
-    drop_sql=`mktemp`
-    chown postgres:postgres $drop_sql
-    # drop all existing connections to the db and block new ones
-    echo "UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'zabbix';" >> $drop_sql
-    echo "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'zabbix';" >> $drop_sql
-    # drop the db, then recreate it
-    echo "DROP DATABASE zabbix;" >> $drop_sql
-    password=`perl -e "use NethServer::Password; print NethServer::Password::store('zabbix');"`
-    echo "CREATE database zabbix; CREATE USER zabbix WITH PASSWORD '$password'; GRANT ALL PRIVILEGES ON DATABASE zabbix to zabbix;" >> $drop_sql 
-    # allow new connections to db
-    echo "UPDATE pg_database SET datallowconn = 'true' WHERE datname = 'zabbix';" >> $drop_sql
-    su - postgres -c "psql < $drop_sql" >/dev/null
-    su - postgres -c "psql zabbix < /var/lib/nethserver/zabbix/backup/zabbix.sql" >/dev/null
-    rm -f $drop_sql
+# do not restore DB by SQL, try docker instead
+exit 0
+
+if [ -f /var/lib/nethserver/zabbix-docker/backup/zabbix.sql ]; then
+  docker stop $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
+  tmp_sql=`mktemp`
+  chmod a+r $tmp_sql
+  cat << EOF > $tmp_sql
+UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'zabbix';
+SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'zabbix';
+DROP DATABASE zabbix;
+CREATE database zabbix;
+CREATE USER zabbix WITH PASSWORD 'zabbix'; GRANT ALL PRIVILEGES ON DATABASE zabbix to zabbix;
+UPDATE pg_database SET datallowconn = 'true' WHERE datname = 'zabbix';
+EOF
+  docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d postgres < $tmp_sql >/dev/null
+  docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix < /var/lib/nethserver/zabbix-docker/backup/zabbix.sql >/dev/null
+  rm -f $tmp_sql
+  docker start $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
 fi
