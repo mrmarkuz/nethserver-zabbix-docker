@@ -1,0 +1,7 @@
+# Fail2ban configuration file for zabbix-docker
+
+{
+$OUT .= '[Definition]
+failregex =^<HOST>.-.-.\[.*\] "POST /index.php HTTP/1.1" 200
+ignoreregex ='
+}

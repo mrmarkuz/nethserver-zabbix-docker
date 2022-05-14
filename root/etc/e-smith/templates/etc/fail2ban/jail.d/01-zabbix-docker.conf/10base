@@ -1,0 +1,21 @@
+
+#
+# Zabbix-docker jail for fail2ban
+#
+
+{
+  use strict;
+  use esmith::ConfigDB;
+  my $conf = esmith::ConfigDB->open || die("Could not open config db\n");
+  my $record = $conf->get('zabbix') || '';
+  return "" if ($record eq '');
+  my $status = $record->prop('jailStatus') || 'disabled';
+  return "" if ($status ne 'enabled');
+  $OUT .= "
+[zabbix-docker]
+enabled = true
+port = 80,443
+logpath = /var/log/messages
+filter = zabbix-docker
+banaction = shorewall-ipset-proto6";
+}
