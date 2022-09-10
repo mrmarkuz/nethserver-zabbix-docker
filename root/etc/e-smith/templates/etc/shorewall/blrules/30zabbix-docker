@@ -6,5 +6,5 @@
   return "" if ($record eq '');
   my $status = $record->prop('status') || 'disabled';
   return "" if ($status ne 'enabled');
-  $OUT .= "DROP\tnet:+f2b-zabbix\tall\nDROP\tloc:+f2b-zabbix\tall\n";
+  $OUT .= "DROP\tnet:+f2b-zabbix-docker\tall\nDROP\tloc:+f2b-zabbix-docker\tall\n";
 }

@@ -15,7 +15,7 @@
 [zabbix-docker]
 enabled = true
 port = 80,443
-logpath = /var/log/messages
+logpath = /var/log/httpd/access_log
 filter = zabbix-docker
 banaction = shorewall-ipset-proto6";
 }

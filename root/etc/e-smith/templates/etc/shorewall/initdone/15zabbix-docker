@@ -6,5 +6,5 @@
   return "" if ($record eq '');
   my $status = $record->prop('status') || 'disabled';
   return "" if ($status ne 'enabled');
-  $OUT .= 'system("/usr/sbin/ipset -quiet -exist create f2b-zabbix hash:ip timeout 1800");';
+  $OUT .= 'system("/usr/sbin/ipset -quiet -exist create f2b-zabbix-docker hash:ip timeout 1800");';
 }
