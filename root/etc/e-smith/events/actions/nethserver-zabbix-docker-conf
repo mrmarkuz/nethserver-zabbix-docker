@@ -18,7 +18,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 if [ -f /root/zabbix.sql ]; then
-	echo "[NOTICE] Migrating data from postgresql to zabbix-docker-postgresql"
+	echo "[NOTICE] Migrating data from zabbix.sql to zabbix-docker-postgresql"
         docker stop $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
         tmp_sql=`mktemp`
         chmod a+r $tmp_sql
