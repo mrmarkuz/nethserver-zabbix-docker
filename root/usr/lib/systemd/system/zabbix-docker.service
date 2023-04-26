@@ -1,0 +1,16 @@
+[Unit]
+Description=Zabbix Docker
+After=network.target docker.service
+PartOf=docker.service
+
+[Service]
+#type=exec
+Restart=on-failure
+WorkingDirectory=/opt/zabbix-docker
+ExecStart=/opt/zabbix-docker/docker-compose up
+#ExecStartPost=/usr/bin/docker network connect aqua zabbix-docker-zabbix-server-1
+#ExecStartPost=/usr/bin/docker network connect aqua zabbix-docker-zabbix-web-nginx-pgsql-1
+ExecStop=/opt/zabbix-docker/docker-compose down
+
+[Install]
+WantedBy=multi-user.target

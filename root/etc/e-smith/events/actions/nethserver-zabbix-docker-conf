@@ -5,24 +5,32 @@
 cd /opt/zabbix-docker
 \cp docker-compose_v3_alpine_pgsql_latest.yaml docker-compose.yml
 ./yq -i 'del(.services.zabbix-web-nginx-pgsql.ports)' docker-compose.yml
-./docker-compose up -d
-docker network connect aqua zabbix-docker-zabbix-server-1
-docker network connect aqua zabbix-docker-zabbix-web-nginx-pgsql-1
-
-# db migration
+./yq -i '.services.zabbix-server.networks.aqua = "" | .services.zabbix-server.networks.aqua tag="!!null"' docker-compose.yml
+./yq -i '.services.zabbix-web-nginx-pgsql.networks.aqua = "" | .services.zabbix-web-nginx-pgsql.networks.aqua tag="!!null"' docker-compose.yml
+./yq -i	'.networks.aqua.name = "aqua"' docker-compose.yml
+./yq -i '.networks.aqua.external = true' docker-compose.yml
+#./docker-compose up -d
+#docker network connect aqua zabbix-docker-zabbix-server-1
+#docker network connect aqua zabbix-docker-zabbix-web-nginx-pgsql-1
 
 docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix -lqt >/dev/null
 if [[ $? -ne 0 ]]; then
-        echo "[ERROR] zabbix-docker-postgresql is not working, exiting"
-        exit 1
+  echo "[ERROR] zabbix-docker-postgresql is not working, exiting"
+  exit 1
 fi
 
+# Change 127.0.0.1 to 172.28.0.1 to reach the agent
+
+echo "UPDATE interface SET ip = '172.28.0.1' WHERE ip = '127.0.0.1';" | docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix
+
+# Migrate DB if zabbix.sql exists
+
 if [ -f /root/zabbix.sql ]; then
-	echo "[NOTICE] Migrating data from zabbix.sql to zabbix-docker-postgresql"
-        docker stop $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
-        tmp_sql=`mktemp`
-        chmod a+r $tmp_sql
-        cat << EOF > $tmp_sql
+  echo "[NOTICE] Migrating data from zabbix.sql to zabbix-docker-postgresql"
+  docker stop $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
+  tmp_sql=`mktemp`
+  chmod a+r $tmp_sql
+  cat << EOF > $tmp_sql
 UPDATE pg_database SET datallowconn = 'false' WHERE datname = 'zabbix';
 SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'zabbix';
 DROP DATABASE zabbix;
@@ -30,16 +38,18 @@ CREATE database zabbix;
 CREATE USER zabbix WITH PASSWORD 'zabbix'; GRANT ALL PRIVILEGES ON DATABASE zabbix to zabbix;
 UPDATE pg_database SET datallowconn = 'true' WHERE datname = 'zabbix';
 EOF
-        docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d postgres < $tmp_sql >/dev/null
-        docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix < /root/zabbix.sql >/dev/null
-        rm -f $tmp_sql
-        docker start $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
-
-
-	if [[ $? -ne 0 ]]; then
-        	echo "[ERROR] An error occured during postgresql migration"
-	        exit 1
-	fi
+  docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d postgres < $tmp_sql >/dev/null
+  docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix < /root/zabbix.sql >/dev/null
+  rm -f $tmp_sql
+  docker start $(docker ps -aqf "name=zabbix-docker-zabbix-server-1")
+  if [[ $? -ne 0 ]]; then
+    echo "[ERROR] An error occured during postgresql migration"
+    exit 1
+  fi
+  mv /root/zabbix.sql /root/zabbix.sql.bkp
 else
-	echo "[NOTICE] No zabbix.sql found so no migration was done"
+  echo "[NOTICE] No zabbix.sql found so no migration was done"
 fi
+
+
+
