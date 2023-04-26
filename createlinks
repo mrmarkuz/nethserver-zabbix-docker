@@ -18,21 +18,22 @@ event_templates($event, qw(
 ));
 
 event_services($event,
-               'httpd' => 'reload'
+               'httpd' => 'reload',
+               'zabbix-docker' => 'restart'
 );
 
 #--------------------------------------------------
 # actions for pre-backup-data event
 #--------------------------------------------------
 
-$event = 'pre-backup-data';
+#$event = 'pre-backup-data';
 
-event_actions($event, 'nethserver-zabbix-docker-backup' => 50);
+#event_actions($event, 'nethserver-zabbix-docker-backup' => 50);
 
 #--------------------------------------------------
 # actions for post-restore-data event
 #--------------------------------------------------
 
-$event = 'post-restore-data';
+#$event = 'post-restore-data';
 
-event_actions($event, 'nethserver-zabbix-docker-restore' => 50);
+#event_actions($event, 'nethserver-zabbix-docker-restore' => 50);

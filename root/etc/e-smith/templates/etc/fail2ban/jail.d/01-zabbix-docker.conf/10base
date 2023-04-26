@@ -7,7 +7,7 @@
   use strict;
   use esmith::ConfigDB;
   my $conf = esmith::ConfigDB->open || die("Could not open config db\n");
-  my $record = $conf->get('zabbix') || '';
+  my $record = $conf->get('zabbix-docker') || '';
   return "" if ($record eq '');
   my $status = $record->prop('jailStatus') || 'disabled';
   return "" if ($status ne 'enabled');
