@@ -19,10 +19,6 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
-# Change 127.0.0.1 to 172.28.0.1 to reach the agent
-
-echo "UPDATE interface SET ip = '172.28.0.1' WHERE ip = '127.0.0.1';" | docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix
-
 # Migrate DB if zabbix.sql exists
 
 if [ -f /root/zabbix.sql ]; then
@@ -51,5 +47,6 @@ else
   echo "[NOTICE] No zabbix.sql found so no migration was done"
 fi
 
+# Change 127.0.0.1 to 172.28.0.1 to reach the agent
 
-
+echo "UPDATE interface SET ip = '172.28.0.1' WHERE ip = '127.0.0.1';" | docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix
