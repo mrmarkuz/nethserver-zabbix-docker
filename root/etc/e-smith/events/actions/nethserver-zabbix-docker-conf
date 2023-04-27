@@ -6,6 +6,7 @@ cd /opt/zabbix-docker
 \cp docker-compose_v3_alpine_pgsql_latest.yaml docker-compose.yml
 ./yq -i 'del(.services.zabbix-web-nginx-pgsql.ports)' docker-compose.yml
 ./yq -i '.services.zabbix-server.networks.aqua = "" | .services.zabbix-server.networks.aqua tag="!!null"' docker-compose.yml
+./yq -i '.services.zabbix-server.networks.aqua.ipv4_address = "172.28.0.250"' docker-compose.yml
 ./yq -i '.services.zabbix-web-nginx-pgsql.networks.aqua = "" | .services.zabbix-web-nginx-pgsql.networks.aqua tag="!!null"' docker-compose.yml
 ./yq -i	'.networks.aqua.name = "aqua"' docker-compose.yml
 ./yq -i '.networks.aqua.external = true' docker-compose.yml
