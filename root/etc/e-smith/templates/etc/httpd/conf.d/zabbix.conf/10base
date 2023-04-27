@@ -7,11 +7,11 @@
 </VirtualHost>
 
 <VirtualHost *:443>
-    ServerName { $zabbix-docker{VirtualHost} || "zabbix.".$DomainName }
+    ServerName { $zabbix{VirtualHost} || "zabbix.".$DomainName }
     SSLEngine On
     ProxyPassMatch ^/.well-known/acme-challenge/ !
-    ProxyPass  / http://localhost:{$zabbix-docker{'TCPPort'}}/ max=3 retry=30
-    ProxyPassReverse / http://localhost:{$zabbix-docker{'TCPPort'}}/
+    ProxyPass  / http://localhost:{$zabbix{'TCPPort'}}/ max=3 retry=30
+    ProxyPassReverse / http://localhost:{$zabbix{'TCPPort'}}/
     ProxyPreserveHost On
     <Location "/">
       <RequireAll>
@@ -21,10 +21,10 @@
 </VirtualHost>
 
 <VirtualHost *:80>
-    ServerName { $zabbix-docker{VirtualHost} || "zabbix.".$DomainName }
+    ServerName { $zabbix{VirtualHost} || "zabbix.".$DomainName }
     ProxyPassMatch ^/.well-known/acme-challenge/ !
-    ProxyPass  / http://localhost:{$zabbix-docker{'TCPPort'}}/ max=3 retry=30
-    ProxyPassReverse / http://localhost:{$zabbix-docker{'TCPPort'}}/
+    ProxyPass  / http://localhost:{$zabbix{'TCPPort'}}/ max=3 retry=30
+    ProxyPassReverse / http://localhost:{$zabbix{'TCPPort'}}/
     ProxyPreserveHost On
     <Location "/">
       <RequireAll>
