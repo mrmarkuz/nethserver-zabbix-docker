@@ -51,4 +51,18 @@ fi
 
 # Change 127.0.0.1 to 172.28.0.1 to reach the agent
 
+docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix -c '\dt' | cut -d \| -f 2 | grep -q -w interface 1>&- 2>&-
+if [[ $? -ne 0 ]]; then
+    max_wait=20
+    wait=0
+    while ! docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix -c '\dt' | cut -d \| -f 2 | grep -q -w interface 1>&- 2>&-; do
+        sleep 1
+        wait=$((wait+1))
+        if [[ $wait -ge $max_wait ]]; then
+            echo "[ERROR] Zabbix DB isn't filled correctly"
+            exit 1
+        fi
+    done
+fi
+
 echo "UPDATE interface SET ip = '172.28.0.1' WHERE ip = '127.0.0.1';" | docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix
