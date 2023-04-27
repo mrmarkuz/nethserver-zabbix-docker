@@ -8,10 +8,12 @@ Release: %{release}%{?dist}
 License: GPL
 Group: Networking/Daemons
 Source: %{name}-%{version}.tar.gz
-%define composeVersion 2.5.0
+%define composeVersion 2.17.3
+%define zabbixVersion 6.0.17
+%define yqVersion 4.33.3
 Source1: https://github.com/docker/compose/releases/download/v%{composeVersion}/docker-compose-linux-x86_64
-Source2: https://github.com/zabbix/zabbix-docker/archive/refs/tags/6.0.4.tar.gz
-Source3: https://github.com/mikefarah/yq/releases/download/v4.25.1/yq_linux_amd64
+Source2: https://github.com/zabbix/zabbix-docker/archive/refs/tags/%{zabbixVersion}.tar.gz
+Source3: https://github.com/mikefarah/yq/releases/download/v%{yqVersion}/yq_linux_amd64
 Requires: nethserver-docker,nethserver-zabbix-agent
 Conflicts: nethserver-zabbix
 BuildRequires: nethserver-devtools
