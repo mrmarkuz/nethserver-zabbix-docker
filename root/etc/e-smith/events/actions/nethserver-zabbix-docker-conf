@@ -52,3 +52,13 @@ fi
 # Change 127.0.0.1 to 172.28.0.1 to reach the agent
 
 echo "UPDATE interface SET ip = '172.28.0.1' WHERE ip = '127.0.0.1';" | docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix
+
+# import map images of Andy Wismer only if not exist to not slow down nethserver-zabbix-update
+if [ ! -d "/opt/zabbix-docker/zbx_env/var/lib/postgresql/data/zabbiximages" ]; then
+  echo "Import images"
+  mkdir -p /opt/zabbix-docker/zbx_env/var/lib/postgresql/data/zabbiximages
+  tar -xzf /root/images.tar.gz -C /opt/zabbix-docker/zbx_env/var/lib/postgresql/data/zabbiximages
+#  chown -R postgres:postgres /var/opt/rh/rh-postgresql13/lib/pgsql/data/zabbiximages
+  cd /opt/zabbix-docker/zbx_env/var/lib/postgresql/data/zabbiximages
+  for d in *.png; do docker exec -i zabbix-docker-postgres-server-1 psql -U zabbix -d zabbix -c "insert into images (imageid,imagetype,name,image) values ((select max(imageid) +1 from images),1,'$d',pg_read_binary_file('zabbiximages/$d'));"; done
+fi
